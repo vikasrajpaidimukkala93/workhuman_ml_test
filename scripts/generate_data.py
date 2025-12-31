@@ -4,7 +4,10 @@ import os
 import argparse
 import boto3
 from botocore.exceptions import ClientError
-from config import get_storage_path, ENV, S3_BUCKET
+from config import get_storage_path, ENV, S3_BUCKET, setup_logger
+
+# Initialize logger
+logger = setup_logger("generate_data")
 
 def upload_to_s3(file_path, bucket, object_name=None):
     """
@@ -15,11 +18,11 @@ def upload_to_s3(file_path, bucket, object_name=None):
 
     s3_client = boto3.client('s3')
     try:
-        print(f"Uploading {file_path} to s3://{bucket}/{object_name}...")
+        logger.info(f"Uploading {file_path} to s3://{bucket}/{object_name}...")
         s3_client.upload_file(file_path, bucket, object_name)
-        print(f"✓ Successfully uploaded to S3")
+        logger.info(f"✓ Successfully uploaded to S3")
     except ClientError as e:
-        print(f"✗ Failed to upload to S3: {e}")
+        logger.error(f"✗ Failed to upload to S3: {e}")
         return False
     return True
 
@@ -29,7 +32,7 @@ def generate_churn_data(n_samples=10000, random_seed=42):
     """
     np.random.seed(random_seed)
     
-    print(f"Generating {n_samples} customer records...")
+    logger.info(f"Generating {n_samples} customer records...")
     
     # Generate customer IDs
     customer_ids = [f"CUST_{i:06d}" for i in range(n_samples)]
@@ -85,8 +88,8 @@ def generate_churn_data(n_samples=10000, random_seed=42):
     })
     
     churn_rate = is_churned.mean()
-    print(f"✓ Generated {n_samples} records")
-    print(f"✓ Churn rate: {churn_rate:.2%} ({is_churned.sum()} churned customers)")
+    logger.info(f"✓ Generated {n_samples} records")
+    logger.info(f"✓ Churn rate: {churn_rate:.2%} ({is_churned.sum()}/{len(is_churned)})")
     
     return df
 
@@ -97,9 +100,9 @@ def main():
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
     args = parser.parse_args()
 
-    print("=" * 60)
-    print(f"Customer Churn Data Generator - ENV: {ENV}")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info(f"Customer Churn Data Generator - ENV: {ENV}")
+    logger.info("=" * 60)
     
     # Generate data
     df = generate_churn_data(n_samples=args.samples, random_seed=args.seed)
@@ -108,7 +111,7 @@ def main():
     storage_path = get_storage_path()
     
     if storage_path.startswith("s3://"):
-        # PROD/PRD logic
+        # PRD logic
         bucket = S3_BUCKET
         parquet_temp = 'data/temp_churn_data.parquet'
         os.makedirs('data', exist_ok=True)
@@ -119,33 +122,33 @@ def main():
         # DEV logic - save local
         os.makedirs('data', exist_ok=True)
         df.to_parquet(storage_path, index=False)
-        print(f"✓ Saved Parquet to {storage_path}")
+        logger.info(f"✓ Saved Parquet to {storage_path}")
         
         csv_path = storage_path.replace(".parquet", ".csv")
         df.to_csv(csv_path, index=False)
-        print(f"✓ Saved CSV to {csv_path}")
+        logger.info(f"✓ Saved CSV to {csv_path}")
     
-    # Display sample data
-    print("\n" + "=" * 60)
-    print("Sample Data (first 10 rows):")
-    print(df.head(10).to_string(index=False))
+    # Display sample data (logger for consistency, though head(10) is large)
+    logger.info("\n" + "=" * 60)
+    logger.info("Sample Data Preview:")
+    logger.info("\n" + df.head(5).to_string(index=False))
     
     # Display summary statistics
-    print("\n" + "=" * 60)
-    print("Summary Statistics:")
-    print(df.describe())
+    logger.info("\n" + "=" * 60)
+    logger.info("Summary Statistics:")
+    logger.info("\n" + df.describe().to_string())
     
     # Display churn distribution by plan type
-    print("\n" + "=" * 60)
-    print("Churn Rate by Plan Type:")
+    logger.info("\n" + "=" * 60)
+    logger.info("Churn Rate by Plan Type:")
     churn_by_plan = df.groupby('plan_type')['is_churned'].agg(['count', 'sum', 'mean'])
     churn_by_plan.columns = ['Total Customers', 'Churned', 'Churn Rate']
     churn_by_plan['Churn Rate'] = churn_by_plan['Churn Rate'].apply(lambda x: f"{x:.2%}")
-    print(churn_by_plan)
+    logger.info("\n" + churn_by_plan.to_string())
     
-    print("\n" + "=" * 60)
-    print("✓ Data generation complete!")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("✓ Data generation complete!")
+    logger.info("=" * 60)
 
 if __name__ == '__main__':
     main()

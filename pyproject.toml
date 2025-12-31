@@ -11,4 +11,5 @@ dependencies = [
     "pyarrow>=22.0.0",
     "pytest>=9.0.2",
     "python-dotenv>=1.2.1",
+    "watchtower>=3.4.0",
 ]
