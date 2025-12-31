@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     S3_BUCKET: str = os.getenv("S3_BUCKET", "workhuman-churn-data-prd")
     S3_KEY: str = "data/churn_data.parquet"
     CLOUDWATCH_LOG_GROUP: str = os.getenv("CLOUDWATCH_LOG_GROUP", "workhuman-ml-logs")
+    CHURN_PRED_URL: str = os.getenv("CHURN_PRED_URL", "http://localhost:8000")
 
     @property
     def database_url(self) -> str:

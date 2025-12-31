@@ -8,7 +8,12 @@ router = APIRouter(prefix="/models", tags=["Model Versions"])
 @router.get("/latest", response_model=ModelVersion)
 async def get_latest_model_version(db: Session = Depends(get_db)):
     try:
-        return db.query(ModelVersion).order_by(ModelVersion.id.desc()).first()
+        model = db.query(ModelVersion).order_by(ModelVersion.id.desc()).first()
+        if not model:
+            raise HTTPException(status_code=404, detail="No models found")
+        return model
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

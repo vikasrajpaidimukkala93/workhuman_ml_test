@@ -41,21 +41,21 @@ def test_get_latest_model_empty():
 def test_create_and_get_latest_model():
     # 1. Create a model version
     model_data = {
-        "version_id": "v1.0.0",
-        "metadata_json": {"accuracy": 0.95}
+        "version": 1,
+        "model_metrics": {"accuracy": 0.95}
     }
-    response = client.post("/models/", json=model_data)
+    response = client.post("/models/create", json=model_data)
     assert response.status_code == 200
     
     # 2. Get latest
     response = client.get("/models/latest")
     assert response.status_code == 200
-    assert response.json() == {"version_id": "v1.0.0"}
+    assert response.json() == {"version": 1}
     
     # 3. Create a newer version
     model_data_2 = {
-        "version_id": "v1.1.0",
-        "metadata_json": {"accuracy": 0.97}
+        "version": 2,
+        "model_metrics": {"accuracy": 0.97}
     }
     client.post("/models/", json=model_data_2)
     

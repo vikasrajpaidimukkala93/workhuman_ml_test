@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 class ModelVersion(BaseModel):
-    version: str
+    version: int
     model_metrics: dict

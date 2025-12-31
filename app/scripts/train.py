@@ -20,8 +20,8 @@ from sklearn.metrics import (
     confusion_matrix
 )
 import matplotlib
-
-from app.config import setup_logger, settings
+from app.routers.utils import log_model_to_db, get_model_version
+from app.config import setup_logger
 matplotlib.use('Agg')  # Non-interactive backend
 
 # Initialize logger
@@ -314,13 +314,14 @@ def create_model_artifact(model, encoders, feature_names, metrics, y_test, y_pro
     return artifact_dir
 
 
-def log_model_to_db(model_version, metrics, best_params, feature_names):
+def log_model_metadata(metrics):
     """Log model metadata to the database model_versions table."""
-
-    # Note: inference_api is not currently implemented in this workspace.
-    # This is a placeholder for future database logging.
-    logger.info(f"  (Simulation) Model version {model_version} would be logged to database here.")
-    return
+    model_version = get_model_version()
+    logger.info(f"The current model version is: {model_version}")
+    model_version += 1
+    log_model_to_db(model_version, metrics)
+    logger.info(f"The model version {model_version} has been logged to the database.")
+    
 
 
 def main():
@@ -401,12 +402,7 @@ def main():
     
     # Log to database
     logger.info("Logging model to database...")
-    log_model_to_db(
-        model_version=os.path.basename(artifact_dir),
-        metrics=metrics,
-        best_params=best_params,
-        feature_names=list(X.columns)
-    )
+    log_model_metadata(metrics)
     
     logger.info("=" * 60)
     logger.info("✓ Training complete!")
