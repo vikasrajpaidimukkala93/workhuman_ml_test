@@ -319,7 +319,7 @@ def log_model_metadata(metrics):
     logger.info(f"The current model version is: {model_version}")
     model_version += 1
     new_model_version = log_model_to_db(model_version, metrics)
-    logger.info(f"The model version {new_model_version.version} has been logged to the database.")
+    logger.info(f"The model version {new_model_version} has been logged to the database.")
     
 
 
