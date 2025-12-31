@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 import argparse
 import os
+import sys
 import json
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
@@ -19,12 +20,12 @@ from sklearn.metrics import (
     confusion_matrix
 )
 import matplotlib
-from app.config import setup_logger, ENV
+
+from app.config import setup_logger, settings
 matplotlib.use('Agg')  # Non-interactive backend
 
 # Initialize logger
 logger = setup_logger("train_model")
-
 
 
 def load_data(data_path):
@@ -327,7 +328,7 @@ def main():
     parser = argparse.ArgumentParser(description='Train churn prediction model')
     parser.add_argument('--data-path', type=str, default='data/churn_data.parquet',
                        help='Path to training data')
-    parser.add_argument('--output-path', type=str, default='models/churn_model.pkl',
+    parser.add_argument('--output-path', type=str, default='ml_models/churn_model.pkl',
                        help='Path to save trained model')
     parser.add_argument('--test-size', type=float, default=0.2,
                        help='Test set size (default: 0.2)')

@@ -1,12 +1,13 @@
 import pandas as pd
 import numpy as np
 import os
+import sys
 import argparse
 import boto3
 from botocore.exceptions import ClientError
-from app.config import get_storage_path, ENV, S3_BUCKET, setup_logger
 
-# Initialize logger
+from app.config import settings, setup_logger
+
 logger = setup_logger("generate_data")
 
 def upload_to_s3(file_path, bucket, object_name=None):
@@ -101,18 +102,18 @@ def main():
     args = parser.parse_args()
 
     logger.info("=" * 60)
-    logger.info(f"Customer Churn Data Generator - ENV: {ENV}")
+    logger.info(f"Customer Churn Data Generator - ENV: {settings.ENV}")
     logger.info("=" * 60)
     
     # Generate data
     df = generate_churn_data(n_samples=args.samples, random_seed=args.seed)
     
     # Determine storage path based on config
-    storage_path = get_storage_path()
+    storage_path = settings.storage_path
     
     if storage_path.startswith("s3://"):
         # PRD logic
-        bucket = S3_BUCKET
+        bucket = settings.S3_BUCKET
         parquet_temp = 'data/temp_churn_data.parquet'
         os.makedirs('data', exist_ok=True)
         df.to_parquet(parquet_temp, index=False)
