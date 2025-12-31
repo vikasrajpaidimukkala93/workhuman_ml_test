@@ -20,8 +20,9 @@ from sklearn.metrics import (
     confusion_matrix
 )
 import matplotlib
+import pickle
 from app.scripts.plot_utils import plot_roc_curve, plot_pr_curve, plot_prediction_distribution
-from app.routers.utils import log_model_to_db, get_model_version
+from app.routers.utils import log_model_to_db, get_model_version, model_version_cache
 from app.config import setup_logger, settings
 matplotlib.use('Agg')  # Non-interactive backend
 
@@ -313,17 +314,11 @@ def create_model_artifact(model, encoders, feature_names, metrics, y_test, y_pro
     return artifact_dir
 
 
-def log_model_metadata(metrics):
+def log_model_metadata(artifact_dir, metrics):
     """Log model metadata to the database model_versions table."""
-    model_version = get_model_version()
-    if model_version.version == 0:
-        model_version = 1
-    else:
-        model_version += 1
-    logger.info(f"The current model version is: {model_version}")
-    new_model_version = log_model_to_db(model_version, metrics)
-    logger.info(f"The model version {new_model_version} has been logged to the database.")
-    
+    new_model_version = log_model_to_db(artifact_dir.split('/')[-1], metrics)
+    logger.info(f"The model version {new_model_version.version} has been logged to the database.")
+    model_version_cache.set("latest_model_version", new_model_version)
 
 
 def main():
@@ -398,13 +393,17 @@ def main():
         metrics=metrics,
         y_test=y_test,
         y_proba=y_proba,
-        output_dir=os.path.dirname(args.output_path) or 'ml_models',
+        output_dir=settings.MODEL_ARTIFACTS_DIR,
         best_params=best_params
     )
     
     # Log to database
-    logger.info("Logging model to database...")
-    log_model_metadata(metrics)
+    if metrics['accuracy'] > 0.5:
+        logger.info("Logging model to database...")
+        log_model_metadata(artifact_dir, metrics)
+        model_version_cache.set("latest_model", pickle.dumps(model))
+    else:
+        logger.info("Accuracy is less than 0.5, not logging model to database.")
     
     logger.info("=" * 60)
     logger.info("✓ Training complete!")

@@ -67,10 +67,10 @@ def test_utils_with_db(mock_get, mock_post):
     try:
         initial_version = get_model_version()
     except Exception:
-        initial_version = 0
+        initial_version = ''
 
     # 3. Log a new model
-    new_version = initial_version.version + 1
+    new_version = 'v_1'
     metrics = {"accuracy": 0.85, "f1": 0.82}
     result = log_model_to_db(new_version, metrics)
     

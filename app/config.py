@@ -26,11 +26,18 @@ class Settings(BaseSettings):
     # Storage configuration
     LOCAL_DATA_DIR: str = "data"
     LOCAL_FILE_PATH: str = os.path.join("data", "churn_data.parquet")
-    S3_BUCKET: str = os.getenv("S3_BUCKET", "workhuman-churn-data-prd")
+    S3_BUCKET: str = os.getenv("S3_BUCKET", "workhuman-churn-prd")
     S3_KEY: str = "data/churn_data.parquet"
     CLOUDWATCH_LOG_GROUP: str = os.getenv("CLOUDWATCH_LOG_GROUP", "workhuman-ml-logs")
     CHURN_PRED_URL: str = os.getenv("CHURN_PRED_URL", "http://localhost:8000")
     MODEL_ARTIFACTS_DIR: str = "ml_models"
+    VALKEY_HOST: str = os.getenv("VALKEY_HOST", "localhost")
+    VALKEY_PORT: int = int(os.getenv("VALKEY_PORT", "6379"))
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID", "")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+    AWS_REGION: str = os.getenv("AWS_REGION", "us-east-1")
+    PREDICT_CHURN_BATCH: str = os.getenv("PREDICT_CHURN_BATCH", "data/churn_data.parquet")
+    CHURN_BATCH_RESULTS: str = os.getenv("CHURN_BATCH_RESULTS", "data/churn_batch_results.parquet")
 
     @property
     def database_url(self) -> str:

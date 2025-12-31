@@ -23,4 +23,5 @@ dependencies = [
     "sqlalchemy>=2.0.45",
     "uvicorn>=0.40.0",
     "watchtower>=3.4.0",
+    "redis>=5.2.1",
 ]

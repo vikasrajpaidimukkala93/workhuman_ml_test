@@ -1,11 +1,10 @@
 import pandas as pd
 import numpy as np
 import os
-import sys
 import argparse
 import boto3
 from botocore.exceptions import ClientError
-
+import uuid
 from app.config import settings, setup_logger
 
 logger = setup_logger("generate_data")
@@ -36,7 +35,7 @@ def generate_churn_data(n_samples=10000, random_seed=42):
     logger.info(f"Generating {n_samples} customer records...")
     
     # Generate customer IDs
-    customer_ids = [f"CUST_{i:06d}" for i in range(n_samples)]
+    customer_ids = [str(uuid.uuid4()) for i in range(n_samples)]
     
     # Generate tenure (months with company)
     tenure_months = np.random.exponential(scale=24, size=n_samples).astype(int)
