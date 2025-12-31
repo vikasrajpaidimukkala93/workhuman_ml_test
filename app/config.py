@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "postgres")
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
-    DB_PORT: str = os.getenv("DB_PORT", "5432")
+    DB_PORT: str = os.getenv("DB_PORT", "5431")
     DB_NAME: str = os.getenv("DB_NAME", "mydb")
     
     # Storage configuration
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     def database_url(self) -> str:
         if self.ENV == "PRD":
             return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        return "postgresql://postgres:postgres@localhost:5432/mydb"
+        return f"postgresql://postgres:postgres@localhost:{self.DB_PORT}/mydb"
 
     @property
     def storage_path(self) -> str:
