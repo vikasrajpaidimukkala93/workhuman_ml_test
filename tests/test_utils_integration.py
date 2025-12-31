@@ -70,7 +70,7 @@ def test_utils_with_db(mock_get, mock_post):
         initial_version = 0
 
     # 3. Log a new model
-    new_version = initial_version + 1
+    new_version = initial_version.version + 1
     metrics = {"accuracy": 0.85, "f1": 0.82}
     result = log_model_to_db(new_version, metrics)
     
@@ -79,4 +79,4 @@ def test_utils_with_db(mock_get, mock_post):
 
     # 4. Verify getting the latest version now returns the new one
     latest_version = get_model_version()
-    assert latest_version == new_version
+    assert latest_version.version == new_version

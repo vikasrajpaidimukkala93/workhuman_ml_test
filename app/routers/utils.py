@@ -4,6 +4,16 @@ from app.config import settings
 from app.schemas import ModelVersion
 
 def log_model_to_db(model_version: int, model_metrics: object) -> ModelVersion:
+    """
+    Log model to database
+
+    args:
+        model_version: int
+        model_metrics: object
+
+    returns:
+        ModelVersion
+    """
     try:
         response = post(settings.CHURN_PRED_URL + "/models/create", json={"version": model_version, "model_metrics": model_metrics})
         return ModelVersion(**response.json())
@@ -11,6 +21,12 @@ def log_model_to_db(model_version: int, model_metrics: object) -> ModelVersion:
         raise HTTPException(status_code=500, detail=str(e))
 
 def get_model_version() -> ModelVersion:
+    """
+    Get latest model version from database
+
+    returns:
+        ModelVersion
+    """
     try:
         response = get(settings.CHURN_PRED_URL + "/models/latest")
         model_version = ModelVersion(**response.json())

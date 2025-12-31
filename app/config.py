@@ -7,6 +7,9 @@ from pydantic_settings import BaseSettings
 load_dotenv()
 
 class Settings(BaseSettings):
+    """
+    Settings class to store configuration variables.
+    """
     app_name: str = "Workhuman Churn Prediction API"
     debug: bool = False
     
@@ -31,10 +34,16 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
+        """
+        Database URL
+            """
         return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def storage_path(self) -> str:
+        """
+        Storage path
+        """
         if self.ENV == "PRD":
             return f"s3://{self.S3_BUCKET}/{self.S3_KEY}"
         else:
@@ -43,6 +52,9 @@ class Settings(BaseSettings):
             return self.LOCAL_FILE_PATH
 
     def get_logger(self, name: str):
+        """
+        Get logger
+        """
         logger = logging.getLogger(name)
         logger.setLevel(logging.INFO)
         

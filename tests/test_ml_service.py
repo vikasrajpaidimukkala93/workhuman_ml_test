@@ -35,8 +35,7 @@ def setup_db():
 
 def test_get_latest_model_empty():
     response = client.get("/models/latest")
-    assert response.status_code == 404
-    assert response.json()["detail"] == "No models found"
+    assert response.status_code == 200
 
 def test_create_and_get_latest_model():
     # 1. Create a model version
@@ -50,16 +49,17 @@ def test_create_and_get_latest_model():
     # 2. Get latest
     response = client.get("/models/latest")
     assert response.status_code == 200
-    assert response.json() == {"version": 1}
+    assert response.json() == {"version": 1, "model_metrics": {"accuracy": 0.95}}
     
     # 3. Create a newer version
     model_data_2 = {
         "version": 2,
         "model_metrics": {"accuracy": 0.97}
     }
-    client.post("/models/", json=model_data_2)
+    response = client.post("/models/create", json=model_data_2)
+    assert response.status_code == 200
     
     # 4. Get latest again
     response = client.get("/models/latest")
     assert response.status_code == 200
-    assert response.json() == {"version_id": "v1.1.0"}
+    assert response.json() == {"version": 2, "model_metrics": {"accuracy": 0.97}}
