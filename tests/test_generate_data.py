@@ -1,11 +1,5 @@
 import unittest
-import pandas as pd
-import sys
-import os
-
-# Add scripts directory to path to import generate_data
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'scripts')))
-from generate_data import generate_churn_data
+from app.scripts.generate_data import generate_churn_data
 
 class TestGenerateData(unittest.TestCase):
     def test_generate_churn_data_shape(self):
