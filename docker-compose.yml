@@ -10,7 +10,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=mydb
       - ENV=DEV
-      - CHURN_PRED_URL=http://localhost:8000
+      - CHURN_PRED_URL=http://app:8000
     depends_on:
       - db
     volumes:
@@ -18,7 +18,7 @@ services:
       - ./data:/app/data
 
   db:
-    image: postgres:latest
+    image: postgres:17-bookworm
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

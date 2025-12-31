@@ -31,9 +31,7 @@ class Settings(BaseSettings):
 
     @property
     def database_url(self) -> str:
-        if self.ENV == "PRD":
-            return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        return f"postgresql://postgres:postgres@localhost:{self.DB_PORT}/mydb"
+        return f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def storage_path(self) -> str:
