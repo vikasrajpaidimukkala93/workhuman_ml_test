@@ -14,11 +14,11 @@ async def get_latest_model_version(db: Session = Depends(get_db)):
     try:
         model = db.query(ModelVersionModel).order_by(ModelVersionModel.id.desc()).first()
         if not model:
-            logger.info(f"No model found")
-            return None
+            logger.info("No model found")
+            return ModelVersion(version=0, model_metrics={})
         return model
     except HTTPException:
-        logger.error(f"UNKNOWN: Failed to get latest model version: {str(e)}")
+        logger.error("UNKNOWN: Failed to get latest model version")
         raise
     except Exception as e:
         logger.error(f"Failed to get latest model version: {str(e)}")

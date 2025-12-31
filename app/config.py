@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "postgres")
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
-    DB_PORT: str = os.getenv("DB_PORT", "5431")
+    DB_PORT: str = os.getenv("DB_PORT", "5433")
     DB_NAME: str = os.getenv("DB_NAME", "mydb")
     
     # Storage configuration

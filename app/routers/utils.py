@@ -10,10 +10,10 @@ def log_model_to_db(model_version: int, model_metrics: object) -> ModelVersion:
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-def get_model_version() -> int:
+def get_model_version() -> ModelVersion:
     try:
         response = get(settings.CHURN_PRED_URL + "/models/latest")
-        model_version = ModelVersion(**response.json()).version
+        model_version = ModelVersion(**response.json())
         return model_version
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
