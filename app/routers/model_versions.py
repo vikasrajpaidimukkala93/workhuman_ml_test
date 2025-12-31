@@ -3,7 +3,7 @@ from app.schemas import ModelVersion
 from app.models import ModelVersion as ModelVersionModel
 from app.database import get_db
 from sqlalchemy.orm import Session
-
+    
 router = APIRouter(prefix="/models", tags=["Model Versions"])
 
 @router.get("/latest", response_model=ModelVersion)
@@ -11,7 +11,8 @@ async def get_latest_model_version(db: Session = Depends(get_db)):
     try:
         model = db.query(ModelVersionModel).order_by(ModelVersionModel.id.desc()).first()
         if not model:
-            raise HTTPException(status_code=404, detail="No models found")
+            logger.info(f"No model found")
+            return None
         return model
     except HTTPException:
         raise

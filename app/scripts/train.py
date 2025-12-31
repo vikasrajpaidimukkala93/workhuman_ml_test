@@ -316,8 +316,11 @@ def create_model_artifact(model, encoders, feature_names, metrics, y_test, y_pro
 def log_model_metadata(metrics):
     """Log model metadata to the database model_versions table."""
     model_version = get_model_version()
+    if model_version is None:
+        model_version = 1
+    else:
+        model_version += 1
     logger.info(f"The current model version is: {model_version}")
-    model_version += 1
     new_model_version = log_model_to_db(model_version, metrics)
     logger.info(f"The model version {new_model_version} has been logged to the database.")
     
