@@ -20,8 +20,9 @@ from sklearn.metrics import (
     confusion_matrix
 )
 import matplotlib
+from app.scripts.plot_utils import plot_roc_curve, plot_pr_curve, plot_prediction_distribution
 from app.routers.utils import log_model_to_db, get_model_version
-from app.config import setup_logger
+from app.config import setup_logger, settings
 matplotlib.use('Agg')  # Non-interactive backend
 
 # Initialize logger
@@ -264,8 +265,6 @@ def create_model_artifact(model, encoders, feature_names, metrics, y_test, y_pro
     logger.info("  ✓ Metrics saved: metrics.txt")
     
     # 4. Plot and save ROC curve
-    from plot_utils import plot_roc_curve, plot_pr_curve, plot_prediction_distribution
-    
     roc_path = os.path.join(artifact_dir, 'roc_curve.png')
     plot_roc_curve(y_test, y_proba, roc_path)
     
@@ -327,9 +326,9 @@ def log_model_metadata(metrics):
 def main():
     """Main training pipeline."""
     parser = argparse.ArgumentParser(description='Train churn prediction model')
-    parser.add_argument('--data-path', type=str, default='data/churn_data.parquet',
+    parser.add_argument('--data-path', type=str, default=settings.storage_path,
                        help='Path to training data')
-    parser.add_argument('--output-path', type=str, default='ml_models/churn_model.pkl',
+    parser.add_argument('--output-path', type=str, default=os.path.join(settings.MODEL_ARTIFACTS_DIR, 'churn_model.pkl'),
                        help='Path to save trained model')
     parser.add_argument('--test-size', type=float, default=0.2,
                        help='Test set size (default: 0.2)')

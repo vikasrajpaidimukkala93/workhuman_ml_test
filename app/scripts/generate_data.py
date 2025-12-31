@@ -99,6 +99,7 @@ def main():
     parser = argparse.ArgumentParser(description='Generate synthetic churn data')
     parser.add_argument('--samples', type=int, default=10000, help='Number of samples to generate')
     parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--storage-path', type=str, default=settings.storage_path, help='Path to save data')
     args = parser.parse_args()
 
     logger.info("=" * 60)
@@ -108,8 +109,8 @@ def main():
     # Generate data
     df = generate_churn_data(n_samples=args.samples, random_seed=args.seed)
     
-    # Determine storage path based on config
-    storage_path = settings.storage_path
+    # Determine storage path based on args
+    storage_path = args.storage_path
     
     if storage_path.startswith("s3://"):
         # PRD logic
