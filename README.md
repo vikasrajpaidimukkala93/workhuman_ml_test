@@ -52,7 +52,7 @@ The easiest way to get the application running is using Docker and Docker Compos
 
 ### Working with the ML Scripts
 
-The project includes scripts to generate data and train models. To run these *inside* the project context using your local environment (assuming you have `uv` installed):
+The project includes scripts for the full ML lifecycle: data generation, training, and inference.
 
 #### 1. Setup local environment
 ```bash
@@ -63,13 +63,27 @@ uv sync
 ```bash
 python -m app.scripts.generate_data --samples 1000
 ```
-*This saves a parquet file to the `data/` directory.*
+*Saves a parquet file to the `data/` directory.*
 
-#### 3. Train Model and Log to DB
+#### 3. Train Model
 ```bash
 python -m app.scripts.train --data-path data/churn_data.parquet
 ```
-*This trains a RandomForest model, saves artifacts to `ml_models/`, and logs the version to the API.*
+*Trains a RandomForest model, saves artifacts to `ml_models/`, and logs version metadata to the API.*
+
+#### 4. Batch Inference (Local)
+Run inference on a batch of data using the latest local model artifacts:
+```bash
+python -m app.scripts.batch_infer
+```
+*Reads input from `data/churn_data.parquet` and saves predictions to `data/churn_predictions.parquet`.*
+
+#### 5. API Inference Client
+Test the API's prediction endpoint using sample data:
+```bash
+python -m app.scripts.api_infer
+```
+*Sends requests to `http://localhost:8000/inferences/infer` and logs the responses.*
 
 ### Database Migrations
 
@@ -80,32 +94,26 @@ alembic upgrade head
 
 ---
 
-## 📁 Project Structure
+## 🏗 Architecture
 
-```text
-.
-├── app/
-│   ├── main.py            # API Entry point
-│   ├── models.py          # SQLAlchemy models
-│   ├── schemas.py         # Pydantic models
-│   ├── config.py          # Environment settings
-│   ├── routers/           # API Endpoints
-│   └── scripts/           # ML Data/Training scripts
-├── alembic/               # Database migration scripts
-├── tests/                 # Unit and Integration tests
-├── Dockerfile             # Container definition
-├── docker-compose.yml     # Service orchestration
-├── pyproject.toml         # Dependencies
-└── uv.lock                # Deterministic lockfile
-```
+- **FastAPI**: Serves the REST API.
+- **PostgreSQL**: Stores model metadata (`model_versions`) and inference logs (`predictions`).
+- **Valkey (Redis)**: Available for caching, though currently disabled for direct model loading in inference.
+
+---
 
 ## 🧪 Testing
 
 Run the test suite using `pytest`:
-```bash
-# Unit tests
-pytest tests/test_ml_service.py
 
-# Integration tests (requires DB running on 5431)
-pytest tests/test_utils_integration.py
+```bash
+# Unit tests (Services & Inference Logic)
+uv run pytest tests/test_ml_service.py
+uv run pytest tests/test_inferences.py
+
+# Integration tests
+uv run pytest tests/test_utils_integration.py
+
+# Cache tests
+uv run pytest tests/test_cache.py
 ```

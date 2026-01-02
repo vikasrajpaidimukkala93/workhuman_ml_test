@@ -20,13 +20,11 @@ mock_model.predict_proba.return_value = np.array([[0.2, 0.8]])
 mock_encoder = MagicMock()
 mock_encoder.transform.side_effect = lambda x: x
 
-@patch("app.routers.inferences.model_version_cache")
 @patch("app.routers.inferences.get_model_version")
 @patch("app.routers.inferences.get_model")
 @patch("app.routers.inferences.get_encoders")
-def test_predict_churn_success(mock_get_encoders, mock_get_model, mock_get_mv, mock_cache):
+def test_predict_churn_success(mock_get_encoders, mock_get_model, mock_get_mv):
     # Setup mocks
-    mock_cache.get.side_effect = lambda k: None # Force loading from utils
     mock_get_mv.return_value = mock_version
     mock_get_model.return_value = {'model': mock_model}
     mock_get_encoders.return_value = {"plan_type": mock_encoder, "country": mock_encoder}
@@ -58,11 +56,11 @@ def test_predict_churn_success(mock_get_encoders, mock_get_model, mock_get_mv, m
     # Cleanup
     app.dependency_overrides.clear()
 
-@patch("app.routers.inferences.model_version_cache")
 @patch("app.routers.inferences.get_model_version")
-def test_predict_churn_no_model(mock_get_mv, mock_cache):
-    mock_cache.get.return_value = None
-    mock_get_mv.side_effect = Exception("No models found")
+@patch("app.routers.inferences.get_model")
+def test_predict_churn_no_model(mock_get_model, mock_get_mv):
+    mock_get_mv.return_value = mock_version
+    mock_get_model.side_effect = Exception("Model not found")
     
     payload = {
         "customer_id": str(uuid.uuid4()),
@@ -75,4 +73,4 @@ def test_predict_churn_no_model(mock_get_mv, mock_cache):
     
     response = client.post("/inferences/infer", json=payload)
     assert response.status_code == 500
-    assert "No models found" in response.json()["detail"]
+    assert "Model not found" in response.json()["detail"]
